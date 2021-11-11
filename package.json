@@ -1,0 +1,27 @@
+{
+  "name": "stocks",
+  "version": "1.0.0",
+  "description": "sock market simulator",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node dist/index.js",
+    "build": "tsc -p .",
+    "dev": "nodemon src/index.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "stocks"
+  },
+  "author": "Christopher Pearce",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/express": "^4.17.11",
+    "nodemon": "^2.0.7",
+    "ts-node": "^9.1.1",
+    "typescript": "^4.4.4"
+  },
+  "dependencies": {
+    "express": "^4.4.4"
+  }
+}
