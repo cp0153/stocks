@@ -1,10 +1,22 @@
-import express from 'express';
+// import * as express from "express";
 
-const app = express();
-app.listen(80, () => {
-  console.log('server running on port 80');
-});
+// // import sub-routers
+// import * as csv from "./services/TradesFromCsv";
+// let router = express.Router();
 
-app.get('/about', (req, res) => {
-  res.status(200).json({'stocks': 'stocks'})
-});
+// // mount express paths, any addition middleware can be added as well.
+// // ex. router.use('/pathway', middleware_function, sub-router);
+
+// router.use('/products', router);
+
+// // Export the router
+// export = router;
+
+import app from './app'
+
+const port = process.env.PORT || 80
+
+app.listen(port, () => {
+    console.log(`server running on port ${port}`);
+  });
+  

@@ -1,13 +1,8 @@
 interface Trade {
     price: number;
     date: Date;
-    tradeType: TradeType;
+    tradeType: string;
     shares: number;
     symbol: number; // as a percentage
     amount: number;
-}
-
-enum TradeType {
-    buy = "BUY",
-    sell = "SELL"
 }

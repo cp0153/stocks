@@ -1,4 +1,4 @@
-interface Stock {
+export interface Stock {
     date: Date;
     open: number;
     high: number;
