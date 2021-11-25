@@ -12,11 +12,11 @@
 // // Export the router
 // export = router;
 
-import app from './app'
+import app from './app';
 
-const port = process.env.PORT || 80
+const port = process.env.PORT || 80;
 
 app.listen(port, () => {
-    console.log(`server running on port ${port}`);
-  });
-  
+  console.log(`server running on port ${port}`);
+});
+

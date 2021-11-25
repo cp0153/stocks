@@ -1,4 +1,4 @@
-interface Position {
+export interface Position {
     symbol: string
     lastPrice: number;
     gainLossDay: number;
