@@ -11,7 +11,7 @@ const upload = multer();
  */
 class App {
   public express;
-  public users: { [name: string]: User; };
+  //public users: { [name: string]: User; };
 
   /**
    * constructor
@@ -31,20 +31,20 @@ class App {
       res.status(200).json({'temp': 'temp'});
     });
 
-    router.post('/file', upload.single('trades'), async (req, res) => {
-      const file = req.file;
-      console.log(file);
-      console.log(req.body.user);
-      const userName = req.body.user;
-      if (file) {
-        const trades: Trade[] = await readTradesFromCsv(file.buffer);
-        const user = new User(userName, trades);
-        this.users[userName] = user;
-        res.status(200).json(`file uploaded successfully for ${userName}`);
-      } else {
-        throw Error('problem uploading file');
-      }
-    });
+    // router.post('/file', upload.single('trades'), async (req, res) => {
+    //   const file = req.file;
+    //   console.log(file);
+    //   console.log(req.body.user);
+    //   const userName = req.body.user;
+    //   if (file) {
+    //     const trades: Trade[] = await readTradesFromCsv(file.buffer);
+    //     const user = new User(userName, trades);
+    //     this.users[userName] = user;
+    //     res.status(200).json(`file uploaded successfully for ${userName}`);
+    //   } else {
+    //     throw Error('problem uploading file');
+    //   }
+    // });
 
     router.get('/createuser', (req, res) => {
 

@@ -1,5 +1,4 @@
 /* eslint-disable require-jsdoc */
-import {Express as ExpressApp} from 'express';
 import * as mongoDB from 'mongodb';
 import * as dotenv from 'dotenv';
 

@@ -13,10 +13,19 @@
 // export = router;
 
 import app from './app';
+import {connectToDatabase} from './data/mongo';
 
 const port = process.env.PORT || 80;
 
-app.listen(port, () => {
-  console.log(`server running on port ${port}`);
-});
+connectToDatabase()
+    .then(() => {
+      // start the Express server
+      app.listen(port, () => {
+        console.log(`Server started at http://localhost:${port}`);
+      });
+    })
+    .catch((error: Error) => {
+      console.error('Database connection failed', error);
+      process.exit();
+    });
 
