@@ -4,14 +4,17 @@ import {ObjectId} from 'mongodb';
 /**
  * top 100 stocks
  */
-export default class Stock {
-  constructor(
+export interface Stock {
+      name: string, // ticker symbol primary key for db
+      priceHistory: DailyPriceData[],
+      id?: ObjectId
+}
+
+export interface DailyPriceData {
       date: Date,
       open: number,
       high: number,
       low: number,
       close: number,
       volume: number,
-      name: string,
-      public id?: ObjectId) {}
 }

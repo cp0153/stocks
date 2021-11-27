@@ -4,10 +4,10 @@
   "description": "sock market simulator",
   "main": "src/index.js",
   "scripts": {
-    "buildAndStart": "tsc -p . && node dist/index.js",
-    "start": "node dist/index.js",
+    "buildAndStart": "tsc -p . && node dist/src/index.js",
+    "start": "node dist/src/index.js",
     "build": "tsc -p .",
-    "dev": "nodemon src/index.ts",
+    "dev": "nodemon dist/src/index.ts",
     "test": "jest",
     "eslint": "eslint 'src/**/*.ts'",
     "eslint:fix": "eslint --fix 'src/**/*.ts'"
