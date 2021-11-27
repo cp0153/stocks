@@ -9,6 +9,6 @@ positions -- (last price, gain/loss day, gain/loss total, current value, % of ac
 
 market:
 socks:
-trade (change in positon for user)
+trade (change in position for user)
 
-CRUD (buy, sell, show positions and buget)
+CRUD (buy, sell, show positions and budget)
