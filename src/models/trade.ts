@@ -1,8 +1,8 @@
 export interface Trade {
     price: number;
     date: Date;
-    tradeType: string;
+    tradeType: string; // buy or sell
     shares: number;
-    symbol: number; // as a percentage
+    symbol: string;
     amount: number;
 }

@@ -4,7 +4,9 @@ import * as dotenv from 'dotenv';
 import rawMarketData from '../../top100.json';
 import {DailyPriceData, Stock} from '../models/Market';
 
-export const collections: { market?: mongoDB.Collection } = {};
+export const collections: {
+  market?: mongoDB.Collection,
+  users?: mongoDB.Collection } = {};
 
 export async function connectToDatabase() {
   // Pulls in the .env file so it can be accessed from process.env. No path as
@@ -30,13 +32,21 @@ export async function connectToDatabase() {
   // Connect to the market collection with the specific name from .env,
   // found in the database previously specified
   let stockCollection: string = '';
-  if (typeof process.env.COLLECTION_NAME != 'string') {
+  if (typeof process.env.MARKET_COLLECTION_NAME != 'string') {
     stockCollection = 'stocks';
   } else {
-    stockCollection = process.env.COLLECTION_NAME;
+    stockCollection = process.env.MARKET_COLLECTION_NAME;
   }
   const market: mongoDB.Collection = db.collection(stockCollection);
-  // market.drop();
+
+  let userCollection: string = '';
+  if (typeof process.env.USER_COLLECTION_NAME != 'string') {
+    userCollection = 'users';
+  } else {
+    userCollection = process.env.USER_COLLECTION_NAME;
+  }
+  const users: mongoDB.Collection = db.collection(userCollection);
+  collections.users = users;
 
   // Persist the connection to the stocks collection
   collections.market = market;
