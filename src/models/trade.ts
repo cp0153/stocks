@@ -4,5 +4,4 @@ export interface Trade {
     tradeType: string; // buy or sell
     shares: number;
     symbol: string;
-    amount: number;
 }

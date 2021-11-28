@@ -1,5 +1,7 @@
 import {Position} from './Position';
 import {Trade} from './Trade';
+import {collections} from '../data/mongo';
+import { DailyPriceData, Stock } from './Market';
 
 /**
  * user class
@@ -27,36 +29,7 @@ export class User {
    */
   private generatePortfolio() {
     for (const trade of this.tradeHistory) {
-      if (trade.tradeType.toUpperCase() === 'BUY') {
-        this.budget -= trade.amount;
-
-        // check if existing position, update if yes, create new position if no
-        // TODO, fill in math
-        this.portfolio.find((existingPos, newTradeInfo) => {
-          if (existingPos.symbol === trade.symbol) {
-            this.portfolio[newTradeInfo] = {
-              symbol: existingPos.symbol,
-              lastPrice: trade.price,
-              gainLossDay: 1,
-              gainLossTotal: 1,
-              currentValue: 1,
-              acctQuantity: .89, // as a percentage
-              costBasis: 1,
-            };
-            return true; // stop searching
-          } else {
-            this.portfolio.push({
-              symbol: existingPos.symbol,
-              lastPrice: trade.price,
-              gainLossDay: 1,
-              gainLossTotal: 1,
-              currentValue: 1,
-              acctQuantity: .89, // as a percentage
-              costBasis: 1,
-            });
-          }
-        });
-      }
+      this.makeTrade(trade);
     }
   }
 
@@ -65,15 +38,66 @@ export class User {
    * @param {trade} trade trade
    */
   public makeTrade(trade: Trade) {
-    throw new Error('Method not implemented.');
+    if (trade.tradeType.toUpperCase() === 'BUY') {
+      const costBasis = trade.price * trade.shares;
+      this.budget -= costBasis;
+
+      // check if existing position, update if yes, create new position if no
+      this.portfolio.find((existingPos, newTradeInfo) => {
+        if (existingPos.symbol === trade.symbol) {
+          this.portfolio[newTradeInfo] = {
+            symbol: existingPos.symbol,
+            shares: this.portfolio[newTradeInfo].shares + trade.shares,
+          };
+          return true; // stop searching
+        } else {
+          this.portfolio.push({
+            symbol: existingPos.symbol,
+            shares: trade.shares,
+          });
+        }
+      });
+    } else {
+      const costBasis = trade.price * trade.shares;
+      this.budget += costBasis;
+
+      // update portfolio
+      this.portfolio.find((existingPos, newTradeInfo) => {
+        if (existingPos.symbol === trade.symbol) {
+          this.portfolio[newTradeInfo] = {
+            symbol: existingPos.symbol,
+            shares: this.portfolio[newTradeInfo].shares - trade.shares,
+          };
+          return true;
+        }
+      });
+    }
   }
 
   /**
-   * updates users positions and cash balance
+   * calculates portfolio value
    * @param {Date} date date of portfolio evaluation
+   * @return {number} value of portfolio on a certain day in 2017
    */
-  public evaluate(date: Date) {
-    throw new Error('Method not implemented.');
+  public async evaluate(date: Date): Promise<number> {
+    let portfolioValue = 0;
+    const market = collections.market;
+    if (market) {
+      for (const position of this.portfolio) {
+        console.log(position);
+        // lookup price (low, high, open, close) based on day in market
+        const query = {name: position.symbol};
+        const positionValue = await market.findOne(query) as Stock;
+        for (const price of positionValue.priceHistory) {
+          if (price.date === date) {
+            portfolioValue += price.high;
+          }
+        }
+      }
+      return portfolioValue;
+    } else {
+      throw Error('Database error');
+    }
   }
 
   /**
