@@ -111,11 +111,7 @@ export async function getUser(id: string): Promise<User> {
     try {
       const query = {_id: new ObjectId(id)};
       const result = (await users.findOne(query)) as User;
-      if (result) {
-        return result;
-      } else {
-        throw Error(`user ${id} not found`);
-      }
+      return result;
     } catch (err) {
       throw Error(`error looking up user ${id}: ${err}`);
     }
