@@ -12,7 +12,7 @@
 // // Export the router
 // export = router;
 
-import app from './app';
+import app from './routes';
 import {connectToDatabase} from './data/mongo';
 
 const port = process.env.PORT || 80;

@@ -2,7 +2,7 @@ version: '3.7'
 
 services:
     nodeapp:
-        container_name: node_pdf
+        container_name: nodejs_stock_simulator
         restart: always
         build:
             context: .

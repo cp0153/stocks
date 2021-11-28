@@ -173,11 +173,7 @@ export async function getAllUsers() {
   } else {
     try {
       const result = (await users.find({}).toArray()) as User[];
-      if (result) {
-        return result;
-      } else {
-        throw Error(`market not found`);
-      }
+      return result;
     } catch (err) {
       throw Error(`error looking up stock market: ${err}`);
     }
@@ -192,11 +188,7 @@ export async function getStock(name: string): Promise<Stock> {
     try {
       const query = {name: name};
       const result = (await stocks.findOne(query)) as Stock;
-      if (result) {
-        return result;
-      } else {
-        throw Error(`stock ${name} not found`);
-      }
+      return result;
     } catch (err) {
       throw Error(`error looking up stock ${name}: ${err}`);
     }
@@ -210,11 +202,7 @@ export async function getAllStock() {
   } else {
     try {
       const result = (await stocks.find({}).toArray()) as Stock[];
-      if (result) {
-        return result;
-      } else {
-        throw Error(`market not found`);
-      }
+      return result;
     } catch (err) {
       throw Error(`error looking up stock market: ${err}`);
     }

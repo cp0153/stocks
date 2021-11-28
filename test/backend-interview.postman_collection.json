@@ -1,0 +1,258 @@
+{
+	"info": {
+		"_postman_id": "a6deb52e-de23-4d11-99a0-eeabc6c3be75",
+		"name": "backend-interview",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "localhost/userfile",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "trades",
+							"type": "file",
+							"src": "/Users/christopherpearce/code/backend-interview/test/trades.csv"
+						},
+						{
+							"key": "user",
+							"value": "chris",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "localhost/user",
+					"host": [
+						"localhost"
+					],
+					"path": [
+						"user"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "localhost/users",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost/user/61a38adc7d400c0ab375d19c",
+					"host": [
+						"localhost"
+					],
+					"path": [
+						"user",
+						"61a38adc7d400c0ab375d19c"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "localhost/about",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost/about",
+					"host": [
+						"localhost"
+					],
+					"path": [
+						"about"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": " http://localhost/market",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost/market",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"path": [
+						"market"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "localhost/user?name=chris",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost/user?name=chris",
+					"host": [
+						"localhost"
+					],
+					"path": [
+						"user"
+					],
+					"query": [
+						{
+							"key": "name",
+							"value": "chris"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "localhost/user?name=chris",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "localhost/user/61a3e0a6af94ead3b3a1cdb6",
+					"host": [
+						"localhost"
+					],
+					"path": [
+						"user",
+						"61a3e0a6af94ead3b3a1cdb6"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "localhost/user",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "user",
+							"value": "test9",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "localhost/user",
+					"host": [
+						"localhost"
+					],
+					"path": [
+						"user"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "localhost/user",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "user",
+							"value": "chris2",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "localhost/user",
+					"host": [
+						"localhost"
+					],
+					"path": [
+						"user"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "localhost/trade/61a38adc7d400c0ab375d19c",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"price\": \"25\",\"date\": \"1/4/17\",\"tradeType\": \"BUY\",\"shares\": \"100\",\"symbol\": \"CAT\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost/trade/61a38adc7d400c0ab375d19c",
+					"host": [
+						"localhost"
+					],
+					"path": [
+						"trade",
+						"61a38adc7d400c0ab375d19c"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": " http://localhost/evaluate/61a38adc7d400c0ab375d19c/2017-01-03T00:00:00.000Z",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost/evaluate/61a38adc7d400c0ab375d19c/2017-01-03T00:00:00.000Z",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"path": [
+						"evaluate",
+						"61a38adc7d400c0ab375d19c",
+						"2017-01-03T00:00:00.000Z"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": " http://localhost/market/AAPL",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost/market/AAPL",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"path": [
+						"market",
+						"AAPL"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

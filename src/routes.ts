@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 import express, {Request, Response} from 'express';
 import multer from 'multer';
 import {readTradesFromCsv} from './services/TradesFromCsv';
@@ -33,6 +34,9 @@ class App {
       res.status(200).json({'stock simulator': 'temp'});
     });
 
+    /**
+     * returns a user, lookup by mongo ObjectId
+     */
     router.get('/user/:id', async (req: Request, res: Response) => {
       const id = req.params.id;
       try {
@@ -44,6 +48,9 @@ class App {
       }
     });
 
+    /**
+     * returns all the users in the mongodb collection
+     */
     router.get('/user', async (req: Request, res: Response) => {
       try {
         const user = await getAllUsers();
@@ -53,6 +60,9 @@ class App {
       }
     });
 
+    /**
+     * deletes a user, lookup by mongo ObjectId
+     */
     router.delete('/user/:id', async (req: Request, res: Response) => {
       const id = req.params.id;
       try {
@@ -64,6 +74,11 @@ class App {
       }
     });
 
+    /**
+     * post endpoint for uploading a csv file in the format:
+     * price,date,tradeType,shares,symbol
+     * request must be made as form data with the file and username as params
+     */
     router.post('/user', upload.single('trades'), async (
         req: Request, res: Response) => {
       const file = req.file;
@@ -85,6 +100,9 @@ class App {
       }
     });
 
+    /**
+     * returns all the stocks in the mongodb collection
+     */
     router.get('/market', async (req: Request, res: Response) => {
       try {
         const market = await getAllStock();
@@ -94,16 +112,23 @@ class App {
       }
     });
 
+    /**
+     * returns one stock
+     */
     router.get('/market/:symbol', async (req: Request, res: Response) => {
       const symbol = req.params.symbol.toUpperCase();
       try {
         const stock = await getStock(symbol);
         res.status(200).send(stock);
       } catch (error) {
-        res.status(500).send(`error looking up symbol ${symbol}: ${error}`);
+        res.status(500).send(`${error}`);
       }
     });
 
+    /**
+     * update the users portfolio with a trade, in json format, username in url
+     * ex: {"price": "25","date": "1/4/17","tradeType": "BUY","shares": "100","symbol": "CAT"}
+     */
     router.post('/trade/:user', async (req: Request, res: Response) => {
       try {
         const newTrade = req.body as Trade;
@@ -122,6 +147,10 @@ class App {
       }
     });
 
+    /**
+     * returns the value of a portfolio on a given day in 2017
+     * /evaluate/<userID>/<date_in_isoformat>
+     */
     router.get('/evaluate/:user/:date',
         async (req: Request, res: Response) => {
           try {
@@ -142,7 +171,8 @@ class App {
   }
 
   /**
-   * private helper to evaluate portfolio values
+   * private helper to evaluate portfolio values,
+   * based on the high price of the selected date
    * @param {User} user user to be evaluated
    * @param {Date} date date of portfolio eval
    * @return {Promise<number>} value of portfolio in $$
@@ -150,9 +180,13 @@ class App {
   private async evaluate(user: User, date: string): Promise<number> {
     let portfolioValue = 0;
     console.log(user.portfolio);
-    for (const pos of user.portfolio) {
+    const portfolio = user.portfolio;
+    for (const pos of portfolio) {
       const symbol: string = pos.symbol.trim();
-      const priceHistory = (await getStock(symbol)).priceHistory;
+      console.log(symbol);
+      const stock = await getStock(symbol);
+      console.log(stock);
+      const priceHistory = stock.priceHistory;
       for (const day of priceHistory) {
         if (day.date === date) {
           portfolioValue += day.high;
