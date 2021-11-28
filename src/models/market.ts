@@ -11,7 +11,7 @@ export interface Stock {
 }
 
 export interface DailyPriceData {
-      date: Date,
+      date: string,
       open: number,
       high: number,
       low: number,

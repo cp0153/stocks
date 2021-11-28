@@ -3,6 +3,8 @@ import * as mongoDB from 'mongodb';
 import * as dotenv from 'dotenv';
 import rawMarketData from '../../top100.json';
 import {DailyPriceData, Stock} from '../models/Market';
+import {ObjectId} from 'mongodb';
+import {User} from 'models/User';
 
 export const collections: {
   market?: mongoDB.Collection,
@@ -77,7 +79,7 @@ async function populateMarket() {
         const low = Number(record.low);
         const close = Number(record.close);
         const volume = Number(record.volume);
-        const date = new Date(record.date);
+        const date = record.date;
 
         const price: DailyPriceData = {
           date: date,
@@ -97,6 +99,124 @@ async function populateMarket() {
       }
     } catch (err) {
       throw Error(`error pushing stocks ${err}`);
+    }
+  }
+}
+
+export async function getUser(id: string): Promise<User> {
+  const users = collections.users || undefined;
+  if (!users) {
+    throw Error('error reading db');
+  } else {
+    try {
+      const query = {_id: new ObjectId(id)};
+      const result = (await users.findOne(query)) as User;
+      if (result) {
+        return result;
+      } else {
+        throw Error(`user ${id} not found`);
+      }
+    } catch (err) {
+      throw Error(`error looking up user ${id}: ${err}`);
+    }
+  }
+}
+
+export async function deleteUser(id: string) {
+  const users = collections.users || undefined;
+  if (!users) {
+    throw Error('error reading db');
+  } else {
+    try {
+      const query = {_id: new ObjectId(id)};
+      const result = await users.deleteOne(query);
+      return result;
+    } catch (err) {
+      throw Error(`error looking up user ${id}: ${err}`);
+    }
+  }
+}
+
+export async function insertUser(user: object) {
+  const users = collections.users || undefined;
+  if (!users) {
+    throw Error('error reading db');
+  } else {
+    try {
+      const result = await users.insertOne(user);
+      return result;
+    } catch (err) {
+      throw Error(`error inserting new record ${user}: ${err}`);
+    }
+  }
+}
+
+export async function updateUser(updatedUser: User, id: string) {
+  const users = collections.users || undefined;
+  if (!users) {
+    throw Error('error reading db');
+  } else {
+    try {
+      const query = {_id: new ObjectId(id)};
+      const result = await users.updateOne(query, {$set: updatedUser});
+      return result;
+    } catch (err) {
+      throw Error(`error inserting new record ${updatedUser}: ${err}`);
+    }
+  }
+}
+
+export async function getAllUsers() {
+  const users = collections.users || undefined;
+  if (!users) {
+    throw Error('error reading db');
+  } else {
+    try {
+      const result = (await users.find({}).toArray()) as User[];
+      if (result) {
+        return result;
+      } else {
+        throw Error(`market not found`);
+      }
+    } catch (err) {
+      throw Error(`error looking up stock market: ${err}`);
+    }
+  }
+}
+
+export async function getStock(name: string): Promise<Stock> {
+  const stocks = collections.market || undefined;
+  if (!stocks) {
+    throw Error('error reading db');
+  } else {
+    try {
+      const query = {name: name};
+      const result = (await stocks.findOne(query)) as Stock;
+      if (result) {
+        return result;
+      } else {
+        throw Error(`stock ${name} not found`);
+      }
+    } catch (err) {
+      throw Error(`error looking up stock ${name}: ${err}`);
+    }
+  }
+}
+
+export async function getAllStock() {
+  const stocks = collections.market || undefined;
+  if (!stocks) {
+    throw Error('error reading db');
+  } else {
+    try {
+      const result = (await stocks.find({}).toArray()) as Stock[];
+      if (result) {
+        return result;
+      } else {
+        throw Error(`market not found`);
+      }
+    } catch (err) {
+      throw Error(`error looking up stock market: ${err}`);
     }
   }
 }

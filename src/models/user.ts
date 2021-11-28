@@ -1,7 +1,5 @@
 import {Position} from './Position';
 import {Trade} from './Trade';
-import {collections} from '../data/mongo';
-import { DailyPriceData, Stock } from './Market';
 
 /**
  * user class
@@ -29,6 +27,7 @@ export class User {
    */
   private generatePortfolio() {
     for (const trade of this.tradeHistory) {
+      console.log(trade);
       this.makeTrade(trade);
     }
   }
@@ -40,63 +39,50 @@ export class User {
   public makeTrade(trade: Trade) {
     if (trade.tradeType.toUpperCase() === 'BUY') {
       const costBasis = trade.price * trade.shares;
-      this.budget -= costBasis;
+      if (this.budget - costBasis < 0) {
+        throw Error('insufficient funds');
+      } else {
+        this.budget -= costBasis;
+      }
 
-      // check if existing position, update if yes, create new position if no
-      this.portfolio.find((existingPos, newTradeInfo) => {
-        if (existingPos.symbol === trade.symbol) {
-          this.portfolio[newTradeInfo] = {
-            symbol: existingPos.symbol,
-            shares: this.portfolio[newTradeInfo].shares + trade.shares,
+      for (const [i, pos] of this.portfolio.entries()) {
+        // this position already exists update share balance
+        if (pos.symbol === trade.symbol) {
+          this.portfolio[i] = {
+            symbol: pos.symbol,
+            shares: +this.portfolio[i].shares + +trade.shares,
           };
-          return true; // stop searching
-        } else {
-          this.portfolio.push({
-            symbol: existingPos.symbol,
-            shares: trade.shares,
-          });
+          // console.log(this.portfolio[i]);
+          return;
         }
+      }
+      this.portfolio.push({
+        symbol: trade.symbol,
+        shares: trade.shares,
       });
+      // sell
     } else {
       const costBasis = trade.price * trade.shares;
       this.budget += costBasis;
 
-      // update portfolio
-      this.portfolio.find((existingPos, newTradeInfo) => {
-        if (existingPos.symbol === trade.symbol) {
-          this.portfolio[newTradeInfo] = {
-            symbol: existingPos.symbol,
-            shares: this.portfolio[newTradeInfo].shares - trade.shares,
-          };
-          return true;
-        }
-      });
-    }
-  }
-
-  /**
-   * calculates portfolio value
-   * @param {Date} date date of portfolio evaluation
-   * @return {number} value of portfolio on a certain day in 2017
-   */
-  public async evaluate(date: Date): Promise<number> {
-    let portfolioValue = 0;
-    const market = collections.market;
-    if (market) {
-      for (const position of this.portfolio) {
-        console.log(position);
-        // lookup price (low, high, open, close) based on day in market
-        const query = {name: position.symbol};
-        const positionValue = await market.findOne(query) as Stock;
-        for (const price of positionValue.priceHistory) {
-          if (price.date === date) {
-            portfolioValue += price.high;
+      let found: boolean = false;
+      for (const [i, pos] of this.portfolio.entries()) {
+        // this position must exist and must have shares enough shares
+        if (pos.symbol === trade.symbol) {
+          if (pos.shares < trade.shares) {
+            throw Error('insufficient shares');
           }
+          this.portfolio[i] = {
+            symbol: pos.symbol,
+            shares: +this.portfolio[i].shares - +trade.shares,
+          };
+          found = true;
+          return;
         }
       }
-      return portfolioValue;
-    } else {
-      throw Error('Database error');
+      if (!found) {
+        throw Error('cant sell stock you dont have');
+      }
     }
   }
 

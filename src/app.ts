@@ -1,11 +1,10 @@
 import express, {Request, Response} from 'express';
 import multer from 'multer';
 import {readTradesFromCsv} from './services/TradesFromCsv';
-import {collections} from './data/mongo';
 import {Trade} from './models/Trade';
-import {Stock} from './models/Market';
 import {User} from './models/User';
-import {ObjectId} from 'mongodb';
+import {getAllStock, getStock, getUser, updateUser, deleteUser,
+  getAllUsers, insertUser} from './data/mongo';
 
 const upload = multer();
 
@@ -14,7 +13,6 @@ const upload = multer();
  */
 class App {
   public express;
-  // public users: { [name: string]: User; };
 
   /**
    * constructor
@@ -30,139 +28,138 @@ class App {
   private mountRoutes(): void {
     // eslint-disable-next-line new-cap
     const router = express.Router();
+    router.use(express.json());
     router.get('/about', (req, res) => {
-      res.status(200).json({'temp': 'temp'});
+      res.status(200).json({'stock simulator': 'temp'});
     });
 
-    router.post('/user', upload.single('trades'), async (req, res) => {
-      const file = req.file;
-      console.log(file);
-      console.log(req.body.user);
-      const userName = req.body.user;
-      if (file) {
-        const trades: Trade[] = await readTradesFromCsv(file.buffer);
-        const user = new User(userName, trades).user();
-
-        let result = undefined;
-        if (collections.users) {
-          result = await collections.users.insertOne(user);
-        }
-
-        result ?
-            res.status(201).send(
-                `Successfully created a new user with id ${result.insertedId}`):
-            res.status(500).send('Failed to create a new user.');
-
-        res.status(200).json(`file uploaded successfully for ${userName}`);
-      } else {
-        throw Error('problem uploading file');
+    router.get('/user/:id', async (req: Request, res: Response) => {
+      const id = req.params.id;
+      try {
+        const user = await getUser(id);
+        res.status(200).send(user);
+      } catch (error) {
+        res.status(404).send(`Unable to find matching document with name:
+        ${id}`);
       }
     });
 
-    router.post('/trade', async (req, res) => {
+    router.get('/user', async (req: Request, res: Response) => {
+      try {
+        const user = await getAllUsers();
+        res.status(200).send(user);
+      } catch (error) {
+        res.status(404).send('users collection not found');
+      }
+    });
+
+    router.delete('/user/:id', async (req: Request, res: Response) => {
+      const id = req.params.id;
+      try {
+        const result = await deleteUser(id);
+        res.status(200).send(result);
+      } catch (error) {
+        res.status(404).send(`Unable to find matching document with name:
+        ${error}`);
+      }
+    });
+
+    router.post('/user', upload.single('trades'), async (
+        req: Request, res: Response) => {
+      const file = req.file;
+      const userName = req.body.user;
+      if (file) {
+        try {
+          const trades: Trade[] = await readTradesFromCsv(file.buffer);
+          const user = new User(userName, trades).user();
+          const result = await insertUser(user);
+    result ?
+        res.status(201).send(
+            `Successfully created a new user with id ${result.insertedId}`):
+        res.status(500).send('Failed to create a new user.');
+        } catch (err) {
+          throw Error(`error reading file ${err}`);
+        }
+      } else {
+        res.status(500).send('no file to upload');
+      }
+    });
+
+    router.get('/market', async (req: Request, res: Response) => {
+      try {
+        const market = await getAllStock();
+        res.status(200).send(market);
+      } catch (error) {
+        res.status(500).send(error);
+      }
+    });
+
+    router.get('/market/:symbol', async (req: Request, res: Response) => {
+      const symbol = req.params.symbol.toUpperCase();
+      try {
+        const stock = await getStock(symbol);
+        res.status(200).send(stock);
+      } catch (error) {
+        res.status(500).send(`error looking up symbol ${symbol}: ${error}`);
+      }
+    });
+
+    router.post('/trade/:user', async (req: Request, res: Response) => {
       try {
         const newTrade = req.body as Trade;
-        console.log(newTrade);
+        const id = req.params.user;
+        const user = await getUser(id);
+        const updatedUser = new User(user.name, user.tradeHistory);
+        updatedUser.makeTrade(newTrade);
+        const result = await updateUser(updatedUser, id);
 
-        res.status(201).send(`trade successful`);
-        // res.status(500).send('trade failed.');
+        result ?
+        res.status(200).send(`trade successful for user ${id}`) :
+        res.status(304).send(`trade failed ${newTrade}`);
       } catch (error) {
         console.error(error);
         res.status(400).send(error);
       }
     });
 
-    router.get('/users:username', async (req: Request, res: Response) => {
-      const newUser = req.params.username;
-      try {
-        let user;
-        if (collections.users) {
-          const query = {_id: new ObjectId(newUser)};
-          user = (await collections.users.findOne(query)) as User;
-          res.status(200).send(user);
-        } else {
-          user = 'users collection not found';
-          res.status(404).send(`Unable to find matching document with id:
-          ${req.params.id}`);
-        }
-      } catch (error) {
-        res.status(404).send(`Unable to find matching document with id:
-        ${req.params.id}`);
-      }
-    });
-
-    router.get('/evaluate:username:date',
+    router.get('/evaluate/:user/:date',
         async (req: Request, res: Response) => {
-          const newUser = req.params.username;
           try {
-            let user;
-            if (collections.users) {
-              const query = {_id: new ObjectId(newUser)};
-              user = (await collections.users.findOne(query)) as User;
-              res.status(200).send(user);
-            } else {
-              user = 'users collection not found';
-              res.status(404).send(`Unable to find matching document with id:
-          ${req.params.id}`);
-            }
+            const id = req.params.user;
+            const date = req.params.date;
+            const user = await getUser(id);
+
+            const portfolioValue = await this.evaluate(user, date);
+            // eslint-disable-next-line max-len
+            res.status(200).send(`portfolio value as of ${date} is ${portfolioValue}`);
           } catch (error) {
-            res.status(404).send(`Unable to find matching document with id:
-        ${req.params.id}`);
+            console.error(error);
+            res.status(400).send(error);
           }
         });
 
-    router.get('/users', async (req: Request, res: Response) => {
-      try {
-        let users;
-        if (collections.users) {
-          users = (await collections.users.find({}).toArray()) as User[];
-          res.status(200).send(users);
-        } else {
-          users = 'users collection not found';
-          res.status(404).send(`Unable to find matching document with id:
-          ${req.params.id}`);
-        }
-      } catch (error) {
-        res.status(404).send(`Unable to find matching document with id:
-        ${req.params.id}`);
-      }
-    });
-
-    router.delete('/users:username', async (req: Request, res: Response) => {
-      const newUser = req.params.username;
-      try {
-        let result;
-        if (collections.users) {
-          const query = {_id: new ObjectId(newUser)};
-          result = (await collections.users.deleteOne(query));
-          res.status(200).send(result);
-        } else {
-          result = 'users collection not found';
-          res.status(404).send(`Unable to find matching document with id:
-          ${req.params.id}`);
-        }
-      } catch (error) {
-        res.status(404).send(`Unable to find matching document with id:
-        ${req.params.id}`);
-      }
-    });
-
-    router.get('/market', async (req: Request, res: Response) => {
-      try {
-        let market;
-        if (collections.market) {
-          market = (await collections.market.find({}).toArray()) as Stock[];
-          res.status(200).send(market);
-        } else {
-          market = 'market collection not found';
-          res.status(500).send(market);
-        }
-      } catch (error) {
-        res.status(500).send(error);
-      }
-    });
-
     this.express.use('/', router);
+  }
+
+  /**
+   * private helper to evaluate portfolio values
+   * @param {User} user user to be evaluated
+   * @param {Date} date date of portfolio eval
+   * @return {Promise<number>} value of portfolio in $$
+   */
+  private async evaluate(user: User, date: string): Promise<number> {
+    let portfolioValue = 0;
+    console.log(user.portfolio);
+    for (const pos of user.portfolio) {
+      const symbol: string = pos.symbol.trim();
+      const priceHistory = (await getStock(symbol)).priceHistory;
+      for (const day of priceHistory) {
+        if (day.date === date) {
+          portfolioValue += day.high;
+        }
+      }
+    }
+    return portfolioValue;
   }
 }
 
