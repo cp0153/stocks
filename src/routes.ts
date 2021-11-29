@@ -179,17 +179,17 @@ class App {
    */
   private async evaluate(user: User, date: string): Promise<number> {
     let portfolioValue = 0;
-    console.log(user.portfolio);
     const portfolio = user.portfolio;
     for (const pos of portfolio) {
-      const symbol: string = pos.symbol.toUpperCase();
-      console.log(symbol);
+      const symbol = pos.symbol.trim();
       const stock = await getStock(symbol);
       const priceHistory = stock.priceHistory;
-      console.log(priceHistory);
       for (const day of priceHistory) {
-        if (day.date === date) {
-          portfolioValue += +day.high;
+        const historyDay = new Date(day.date).getTime();
+        const timestamp = new Date(date).getTime();
+        if (historyDay === timestamp) {
+          portfolioValue += +day.high * +pos.shares;
+          break;
         }
       }
     }

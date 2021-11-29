@@ -79,7 +79,7 @@ async function populateMarket() {
         const low = Number(record.low);
         const close = Number(record.close);
         const volume = Number(record.volume);
-        const date = record.date;
+        const date = new Date(record.date);
 
         const price: DailyPriceData = {
           date: date,
@@ -176,13 +176,13 @@ export async function getAllUsers() {
   }
 }
 
-export async function getStock(name: string): Promise<Stock> {
+export async function getStock(name: string) {
   const stocks = collections.market || undefined;
   if (!stocks) {
     throw Error('error reading db');
   } else {
     try {
-      const query = {name: name};
+      const query = {'name': name};
       const result = (await stocks.findOne(query)) as Stock;
       return result;
     } catch (err) {

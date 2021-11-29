@@ -12,7 +12,7 @@ export class Stock {
 }
 
 export interface DailyPriceData {
-      date: string,
+      date: Date,
       open: number,
       high: number,
       low: number,
