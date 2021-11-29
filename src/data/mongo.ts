@@ -2,7 +2,7 @@
 import * as mongoDB from 'mongodb';
 import * as dotenv from 'dotenv';
 import rawMarketData from '../../top100.json';
-import {DailyPriceData, Stock} from '../models/Market';
+import {DailyPriceData, Stock} from '../models/Stock';
 import {ObjectId} from 'mongodb';
 import {User} from 'models/User';
 

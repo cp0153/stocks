@@ -2,12 +2,12 @@
 
 ## build instructions
 
-run ```docker-compose up``` in the command line. 
+run ```docker-compose up``` in the command line.
 
 ## background
-project runs a mongodb container and a node js container hosted on port 80 and 27017. 
+project runs a container hosting a nodejs server and another container hosting a mongodb on port 80 and 27017.
 
-The Mongodb data is stored in two collections (market and users) on mongodb. the Market collection contains the stocks from top100.json organized by stock with their price history stored as a list. The User collection contains a User of the app, their name, portfolio, trade history and balance.
+The Mongodb data is stored in two collections (market and users) on mongodb. The Market collection contains the stocks from top100.json organized by stock with their price history stored as a array. The User collection contains a User of the app, their name, portfolio, trade history and balance.
 
 * APIs to manage a user
 * a trade API to allow a user to buy or sell
