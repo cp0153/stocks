@@ -86,7 +86,7 @@ class App {
       if (file) {
         try {
           const trades: Trade[] = await readTradesFromCsv(file.buffer);
-          const user = new User(userName, trades).user();
+          const user = new User(userName, trades);
           const result = await insertUser(user);
     result ?
         res.status(201).send(
@@ -116,7 +116,7 @@ class App {
      * returns one stock
      */
     router.get('/market/:symbol', async (req: Request, res: Response) => {
-      const symbol = req.params.symbol.toUpperCase();
+      const symbol = req.params.symbol.toUpperCase().normalize();
       try {
         const stock = await getStock(symbol);
         res.status(200).send(stock);
@@ -181,7 +181,8 @@ class App {
     let portfolioValue = 0;
     const portfolio = user.portfolio;
     for (const pos of portfolio) {
-      const symbol = pos.symbol.trim();
+      console.log(pos);
+      const symbol = pos.symbol.trim().normalize();
       const stock = await getStock(symbol);
       const priceHistory = stock.priceHistory;
       for (const day of priceHistory) {

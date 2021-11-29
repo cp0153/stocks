@@ -7,8 +7,8 @@ import {ObjectId} from 'mongodb';
 import {User} from 'models/User';
 
 export const collections: {
-  market?: mongoDB.Collection,
-  users?: mongoDB.Collection } = {};
+  market?: mongoDB.Collection<Stock>,
+  users?: mongoDB.Collection<User> } = {};
 
 export async function connectToDatabase() {
   // Pulls in the .env file so it can be accessed from process.env. No path as
@@ -39,7 +39,7 @@ export async function connectToDatabase() {
   } else {
     stockCollection = process.env.MARKET_COLLECTION_NAME;
   }
-  const market: mongoDB.Collection = db.collection(stockCollection);
+  const market = db.collection<Stock>(stockCollection);
 
   let userCollection: string = '';
   if (typeof process.env.USER_COLLECTION_NAME != 'string') {
@@ -47,11 +47,12 @@ export async function connectToDatabase() {
   } else {
     userCollection = process.env.USER_COLLECTION_NAME;
   }
-  const users: mongoDB.Collection = db.collection(userCollection);
+  const users = db.collection<User>(userCollection);
   collections.users = users;
 
   // Persist the connection to the stocks collection
   collections.market = market;
+  market.drop();
   collections.market.countDocuments((err: any, count: number) => {
     if (!err && count === 0) {
       populateMarket();
@@ -93,7 +94,8 @@ async function populateMarket() {
         if (stock) {
           await market.updateOne(query, {$push: {priceHistory: price}});
         } else {
-          const newStock = {name: record.Name, priceHistory: [price]};
+          // eslint-disable-next-line max-len
+          const newStock = {name: record.Name.normalize(), priceHistory: [price]};
           await market.insertOne(newStock);
         }
       }
@@ -110,7 +112,7 @@ export async function getUser(id: string): Promise<User> {
   } else {
     try {
       const query = {_id: new ObjectId(id)};
-      const result = (await users.findOne(query)) as User;
+      const result = (await users.findOne<User>(query)) as User;
       return result;
     } catch (err) {
       throw Error(`error looking up user ${id}: ${err}`);
@@ -133,7 +135,7 @@ export async function deleteUser(id: string) {
   }
 }
 
-export async function insertUser(user: object) {
+export async function insertUser(user: User) {
   const users = collections.users || undefined;
   if (!users) {
     throw Error('error reading db');
@@ -154,7 +156,7 @@ export async function updateUser(updatedUser: User, id: string) {
   } else {
     try {
       const query = {_id: new ObjectId(id)};
-      const result = await users.updateOne(query, {$set: updatedUser});
+      const result = await users.findOneAndReplace(query, updatedUser);
       return result;
     } catch (err) {
       throw Error(`error inserting new record ${updatedUser}: ${err}`);
@@ -183,7 +185,7 @@ export async function getStock(name: string) {
   } else {
     try {
       const query = {'name': name};
-      const result = (await stocks.findOne(query)) as Stock;
+      const result = await stocks.findOne<Stock>(query) as Stock;
       return result;
     } catch (err) {
       throw Error(`error looking up stock ${name}: ${err}`);

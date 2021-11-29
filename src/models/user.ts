@@ -30,7 +30,7 @@ export class User {
    */
   private generatePortfolio() {
     for (const trade of this.tradeHistory) {
-      console.log(trade);
+      // console.log(trade);
       this.makeTrade(trade);
     }
   }
@@ -45,7 +45,7 @@ export class User {
       if (this.budget - costBasis < 0) {
         throw Error('insufficient funds');
       } else {
-        this.budget -= costBasis;
+        this.budget -= +costBasis;
       }
 
       for (const [i, pos] of this.portfolio.entries()) {
@@ -61,12 +61,12 @@ export class User {
       }
       this.portfolio.push({
         symbol: trade.symbol,
-        shares: trade.shares,
+        shares: +trade.shares,
       });
       // sell
     } else {
       const costBasis = trade.price * trade.shares;
-      this.budget += costBasis;
+      this.budget += +costBasis;
 
       let found: boolean = false;
       for (const [i, pos] of this.portfolio.entries()) {
