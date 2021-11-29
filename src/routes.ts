@@ -182,14 +182,14 @@ class App {
     console.log(user.portfolio);
     const portfolio = user.portfolio;
     for (const pos of portfolio) {
-      const symbol: string = pos.symbol.trim();
+      const symbol: string = pos.symbol.toUpperCase();
       console.log(symbol);
       const stock = await getStock(symbol);
-      console.log(stock);
       const priceHistory = stock.priceHistory;
+      console.log(priceHistory);
       for (const day of priceHistory) {
         if (day.date === date) {
-          portfolioValue += day.high;
+          portfolioValue += +day.high;
         }
       }
     }

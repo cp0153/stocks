@@ -1,3 +1,4 @@
+import {ObjectId} from 'mongodb';
 import {Position} from './Position';
 import {Trade} from './Trade';
 
@@ -9,13 +10,15 @@ export class User {
   budget: number = 100000.00;
   portfolio: Position[] = [];
   tradeHistory: Trade[] = [];
+  public id?: ObjectId;
 
   /**
    * starts with initial name and positions
    * @param {string} name user name
    * @param {Trade[]} trades a list of the users trades
+   * @param {ObjectId} id _id field if any
    */
-  public constructor(name: string, trades: Trade[]) {
+  public constructor(name: string, trades: Trade[], id?: ObjectId) {
     this.name = name;
     this.tradeHistory = trades;
     this.generatePortfolio();
