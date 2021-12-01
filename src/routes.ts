@@ -181,17 +181,19 @@ class App {
     let portfolioValue = 0;
     const portfolio = user.portfolio;
     for (const pos of portfolio) {
-      console.log(pos);
-      const symbol = pos.symbol.trim().normalize();
-      const stock = await getStock(symbol);
-      const priceHistory = stock.priceHistory;
-      for (const day of priceHistory) {
-        const historyDay = new Date(day.date).getTime();
-        const timestamp = new Date(date).getTime();
-        if (historyDay === timestamp) {
-          portfolioValue += +day.high * +pos.shares;
-          break;
+      try {
+        const stock = await getStock(pos.symbol);
+        const priceHistory = stock.priceHistory;
+        for (const day of priceHistory) {
+          const historyDay = new Date(day.date).getTime();
+          const timestamp = new Date(date).getTime();
+          if (historyDay === timestamp) {
+            portfolioValue += +day.high * +pos.shares;
+            break;
+          }
         }
+      } catch (err) {
+        console.log(err);
       }
     }
     return portfolioValue;

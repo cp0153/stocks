@@ -120,6 +120,27 @@ export async function getUser(id: string): Promise<User> {
   }
 }
 
+export async function getStockId(id: string) {
+  const market = collections.market || undefined;
+  if (!market) {
+    throw Error('error reading db');
+  } else {
+    try {
+      const query = {_id: new ObjectId(id)};
+      market.findOne(query, (err, result) => {
+        if (err) {
+          console.log(err);
+        } else {
+          console.log(result);
+          return result;
+        }
+      });
+    } catch (err) {
+      throw Error(`error looking up user ${id}: ${err}`);
+    }
+  }
+}
+
 export async function deleteUser(id: string) {
   const users = collections.users || undefined;
   if (!users) {
@@ -184,9 +205,9 @@ export async function getStock(name: string) {
     throw Error('error reading db');
   } else {
     try {
-      const query = {'name': name};
-      const result = await stocks.findOne<Stock>(query) as Stock;
-      return result;
+      const query = {name: name};
+      const result = await stocks.findOne(query);
+      return result as Stock;
     } catch (err) {
       throw Error(`error looking up stock ${name}: ${err}`);
     }
@@ -201,6 +222,27 @@ export async function getAllStock() {
     try {
       const result = (await stocks.find({}).toArray()) as Stock[];
       return result;
+    } catch (err) {
+      throw Error(`error looking up stock market: ${err}`);
+    }
+  }
+}
+
+export async function getAllStockLookup() {
+  const stocks = collections.market || undefined;
+  if (!stocks) {
+    throw Error('error reading db');
+  } else {
+    try {
+      const result = (await stocks.find({}).toArray());
+      const stockTable: { [index: string]: any; } = {};
+      for (const i of result) {
+        // console.log(i);
+        const sym = i.name;
+        const id = i.id;
+        stockTable[sym] = id;
+      }
+      return stockTable;
     } catch (err) {
       throw Error(`error looking up stock market: ${err}`);
     }
