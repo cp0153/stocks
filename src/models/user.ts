@@ -55,7 +55,6 @@ export class User {
             symbol: pos.symbol,
             shares: +this.portfolio[i].shares + +trade.shares,
           };
-          // console.log(this.portfolio[i]);
           return;
         }
       }
@@ -100,5 +99,71 @@ export class User {
       portfolio: this.portfolio,
       tradeHistory: this.tradeHistory,
     };
+  }
+
+  /**
+   * buy a stock
+   * @param {Trade} trade trade
+   */
+  private buy(trade: Trade) {
+    const costBasis = trade.price * trade.shares;
+    if (this.budget - costBasis < 0) {
+      throw Error(`insufficient funds have ${this.budget} need: ${costBasis}`);
+    } else {
+      this.budget -= costBasis;
+    }
+
+    for (const pos of this.portfolio) {
+      if (pos.symbol === trade.symbol) {
+        pos.shares += trade.shares;
+        this.tradeHistory.push(trade);
+        return;
+      }
+    }
+
+    this.portfolio.push({
+      symbol: trade.symbol,
+      shares: trade.shares,
+    });
+
+    this.tradeHistory.push(trade);
+  }
+
+  /**
+   * sell a stock
+   * @param {Trade }trade being sold
+   */
+  private sell(trade: Trade) {
+    let found: boolean = false;
+    for (const pos of this.portfolio) {
+      // this position must exist and must have shares enough shares
+      if (pos.symbol === trade.symbol) {
+        found = true;
+        if (pos.shares < trade.shares) {
+          throw Error('insufficient shares');
+        } else {
+          pos.shares -= trade.shares;
+          this.tradeHistory.push(trade);
+          return;
+        }
+      }
+    }
+    if (!found) {
+      throw Error('cant sell stock you dont have');
+    }
+  }
+
+  /**
+   * make a trade
+   * @param {Trade} trade to be processed
+   */
+  public trade(trade: Trade) {
+    if (trade.tradeType === 'BUY') {
+      this.buy(trade);
+    } else if (trade.tradeType === 'SELL') {
+      this.sell(trade);
+    } else {
+      throw Error(`invalid trade type ${trade.tradeType}`);
+    }
   }
 }

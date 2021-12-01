@@ -11,5 +11,11 @@ import {Trade} from '../models/Trade';
  */
 export async function readTradesFromCsv(file: Buffer): Promise<Trade[]> {
   const csv = file.toString();
-  return await csvtojsonV2().fromString(csv);
+  const trades: Trade[] = await csvtojsonV2().fromString(csv);
+  for (const trade of trades) {
+    trade.date = new Date(trade.date);
+    trade.price = Number(trade.price);
+    trade.shares = Number(trade.shares);
+  }
+  return trades;
 }

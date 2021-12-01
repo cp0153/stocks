@@ -10,9 +10,26 @@ project runs a container hosting a nodejs server and another container hosting a
 The Mongodb data is stored in two collections (market and users) on mongodb. The Market collection contains the stocks from top100.json organized by stock with their price history stored as a array. The User collection contains a User of the app, their name, portfolio, trade history and balance.
 
 * APIs to manage a user
-* a trade API to allow a user to buy or sell
-* a create user API that allows a CSV file to be uploaded so a user can be have a pre-filled trade history
+  * GET /user --lookup all users
+
+  * GET /user/:id -- lookup user by id
+
+  * DELETE /user:id -- delete a user
+
+  * POST /user -- create a new user with trades from CSV file
+
+    * CSV file must be in format "price,date,tradeType,shares,symbol"
+
+  * a trade API to allow a user to buy or sell
+
+    * POST /trade/:user
+
+    * update the user (lookup by id) with info from a new trade
+
+    * ex ```{"price": 25,"date": "2017-01-04T00:00:00.000Z","tradeType": "SELL","shares": 1,"symbol": "FB"}```
+
 * evaluate API to calculate the value of the users portfolio in a certain day on 2017
+  * /evaluate/:user/:date' -- returns the value of a portfolio on a given day in 2017
 
 * API was tested with ./backend-interview/test/backend-interview.postman_collection.json
 

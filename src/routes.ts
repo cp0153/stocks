@@ -135,15 +135,15 @@ class App {
         const id = req.params.user;
         const user = await getUser(id);
         const updatedUser = new User(user.name, user.tradeHistory);
-        updatedUser.makeTrade(newTrade);
+        updatedUser.trade(newTrade);
         const result = await updateUser(updatedUser, id);
 
         result ?
         res.status(200).send(`trade successful for user ${id}`) :
         res.status(304).send(`trade failed ${newTrade}`);
-      } catch (error) {
-        console.error(error);
-        res.status(400).send(error);
+      } catch (err) {
+        console.error(err);
+        res.status(400).send(`trade failed ${err}`);
       }
     });
 
