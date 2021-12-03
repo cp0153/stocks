@@ -194,6 +194,7 @@ class App {
         }
       } catch (err) {
         console.log(err);
+        console.log(`symbol: ${pos.symbol} not found.`);
       }
     }
     return portfolioValue;

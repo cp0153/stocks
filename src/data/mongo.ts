@@ -4,7 +4,7 @@ import * as dotenv from 'dotenv';
 import rawMarketData from '../../top100.json';
 import {DailyPriceData, Stock} from '../models/Stock';
 import {ObjectId} from 'mongodb';
-import {User} from 'models/User';
+import {User} from '../models/User';
 
 export const collections: {
   market?: mongoDB.Collection<Stock>,
@@ -207,7 +207,11 @@ export async function getStock(name: string) {
     try {
       const query = {name: name};
       const result = await stocks.findOne(query);
-      return result as Stock;
+      if (result) {
+        return result;
+      } else {
+        throw Error(`error looking up stock ${name}: not found`);
+      }
     } catch (err) {
       throw Error(`error looking up stock ${name}: ${err}`);
     }

@@ -16,6 +16,8 @@ export async function readTradesFromCsv(file: Buffer): Promise<Trade[]> {
     trade.date = new Date(trade.date);
     trade.price = Number(trade.price);
     trade.shares = Number(trade.shares);
+    trade.symbol = String(trade.symbol);
+    trade.tradeType = String(trade.tradeType);
   }
   return trades;
 }
