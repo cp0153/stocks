@@ -36,11 +36,13 @@ The Mongodb data is stored in two collections (market and users) on mongodb. The
 
 
 ### file structure
-```    src/ --source code
-       data/ --data access layer, connects to mongodb
-        models/ --schemas for the simulated stock market, Positions, Trade, and User
-        services/ -- utilities to parse a csv file into a user
-        routes.ts -- api endpoints
-        index.ts -- entry point for express app
-    test/ -- unit tests```
+```
+src/ --source code
+    data/ --data access layer, connects to mongodb
+    models/ --schemas for the simulated stock market, Positions, Trade, and User
+    services/ -- utilities to parse a csv file into a user
+    routes.ts -- api endpoints
+    index.ts -- entry point for express app
+test/ -- unit tests
+```
 

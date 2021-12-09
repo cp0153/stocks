@@ -1,3 +1,4 @@
+import {getStock} from '../data/mongo';
 import {ObjectId} from 'mongodb';
 import {Position} from './Position';
 import {Trade} from './Trade';
@@ -165,5 +166,35 @@ export class User {
     } else {
       throw Error(`invalid trade type ${trade.tradeType}`);
     }
+  }
+
+  /**
+   * helper to evaluate portfolio values,
+   * based on the high price of the selected date
+   * @param {User} user user to be evaluated
+   * @param {Date} date date of portfolio eval
+   * @return {Promise<number>} value of portfolio in $$
+   */
+  public static async evaluate(user: User, date: string): Promise<number> {
+    let portfolioValue = 0;
+    const portfolio = user.portfolio;
+    for (const pos of portfolio) {
+      try {
+        const stock = await getStock(pos.symbol);
+        const priceHistory = stock.priceHistory;
+        for (const day of priceHistory) {
+          const historyDay = new Date(day.date).getTime();
+          const timestamp = new Date(date).getTime();
+          if (historyDay === timestamp) {
+            portfolioValue += +day.high * +pos.shares;
+            break;
+          }
+        }
+      } catch (err) {
+        console.log(err);
+        console.log(`symbol: ${pos.symbol} not found.`);
+      }
+    }
+    return portfolioValue;
   }
 }

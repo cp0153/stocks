@@ -13,6 +13,7 @@ export async function readTradesFromCsv(file: Buffer): Promise<Trade[]> {
   const csv = file.toString();
   const trades: Trade[] = await csvtojsonV2().fromString(csv);
   for (const trade of trades) {
+    // TODO verify symbol exists, discard if not in market
     trade.date = new Date(trade.date);
     trade.price = Number(trade.price);
     trade.shares = Number(trade.shares);

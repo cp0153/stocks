@@ -83,20 +83,30 @@ class App {
         req: Request, res: Response) => {
       const file = req.file;
       const userName = req.body.user;
+
+      if (!userName) {
+        res.status(400).send('username is required');
+      }
+      let user: User;
+      let trades: Trade[];
       if (file) {
         try {
-          const trades: Trade[] = await readTradesFromCsv(file.buffer);
-          const user = new User(userName, trades);
-          const result = await insertUser(user);
-    result ?
-        res.status(201).send(
-            `Successfully created a new user with id ${result.insertedId}`):
-        res.status(500).send('Failed to create a new user.');
+          trades = await readTradesFromCsv(file.buffer);
         } catch (err) {
           throw Error(`error reading file ${err}`);
         }
       } else {
-        res.status(500).send('no file to upload');
+        trades = [];
+      }
+      try {
+        user = new User(userName, trades);
+        const result = await(insertUser(user));
+                result ?
+            res.status(201).send(
+                `Successfully created a new user with id ${result.insertedId}`):
+            res.status(500).send('Failed to create a new user.');
+      } catch (err) {
+        res.status(500).send(`Error inserting user: ${err}`);
       }
     });
 
@@ -114,6 +124,7 @@ class App {
 
     /**
      * returns one stock
+     * '/stockprices/:symbol/startdate/enddate/'
      */
     router.get('/market/:symbol', async (req: Request, res: Response) => {
       const symbol = req.params.symbol.toUpperCase().normalize();
@@ -157,8 +168,7 @@ class App {
             const id = req.params.user;
             const date = req.params.date;
             const user = await getUser(id);
-
-            const portfolioValue = await this.evaluate(user, date);
+            const portfolioValue = await User.evaluate(user, date);
             // eslint-disable-next-line max-len
             res.status(200).send(`portfolio value as of ${date} is ${portfolioValue}`);
           } catch (error) {
@@ -168,36 +178,6 @@ class App {
         });
 
     this.express.use('/', router);
-  }
-
-  /**
-   * private helper to evaluate portfolio values,
-   * based on the high price of the selected date
-   * @param {User} user user to be evaluated
-   * @param {Date} date date of portfolio eval
-   * @return {Promise<number>} value of portfolio in $$
-   */
-  private async evaluate(user: User, date: string): Promise<number> {
-    let portfolioValue = 0;
-    const portfolio = user.portfolio;
-    for (const pos of portfolio) {
-      try {
-        const stock = await getStock(pos.symbol);
-        const priceHistory = stock.priceHistory;
-        for (const day of priceHistory) {
-          const historyDay = new Date(day.date).getTime();
-          const timestamp = new Date(date).getTime();
-          if (historyDay === timestamp) {
-            portfolioValue += +day.high * +pos.shares;
-            break;
-          }
-        }
-      } catch (err) {
-        console.log(err);
-        console.log(`symbol: ${pos.symbol} not found.`);
-      }
-    }
-    return portfolioValue;
   }
 }
 
