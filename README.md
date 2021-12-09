@@ -1,4 +1,4 @@
-# Backend Alteryx Homework - Stock Market Simulator #
+# Stock Market Simulator #
 
 ## build instructions
 
